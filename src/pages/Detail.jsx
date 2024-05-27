@@ -1,10 +1,8 @@
-// src/pages/Detail.jsx
-import { useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { updateExpense, deleteExpense } from '../redux/expenseSlice';
-import { useExpenseContext } from '../context/ExpenseContext';
 
 const Container = styled.div`
   max-width: 600px;
@@ -32,7 +30,8 @@ function Detail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const expense = useSelector((state) => state.expense.expenses.find((e) => e.id === id));
+  const expense = useSelector(state => state.expense.expenses.find(expense => expense.id === id));
+  const [formData, setFormData] = useState({});
 
   const dateRef = useRef(null);
   const itemRef = useRef(null);
@@ -41,28 +40,31 @@ function Detail() {
 
   useEffect(() => {
     if (expense) {
-      dateRef.current.value = expense.date;
-      itemRef.current.value = expense.item;
-      amountRef.current.value = expense.amount;
-      descriptionRef.current.value = expense.description;
+      setFormData(expense);
     }
   }, [expense]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    dispatch(updateExpense({
-      id,
-      date: dateRef.current.value,
-      item: itemRef.current.value,
-      amount: amountRef.current.value,
-      description: descriptionRef.current.value
-    }));
+    // 수정된 데이터를 업데이트하는 로직
+    dispatch(updateExpense(formData));
     navigate('/');
   };
 
   const handleDelete = () => {
+    // 삭제 로직
     dispatch(deleteExpense(id));
     navigate('/');
+  };
+
+  const handleChange = () => {
+    // Form 데이터 변경 처리
+    setFormData({
+      date: dateRef.current.value,
+      item: itemRef.current.value,
+      amount: amountRef.current.value,
+      description: descriptionRef.current.value
+    });
   };
 
   return (
@@ -71,19 +73,19 @@ function Detail() {
       <form onSubmit={handleSubmit}>
         <InputGroup>
           <InputLabel>날짜</InputLabel>
-          <InputField type="text" name="date" ref={dateRef} />
+          <InputField type="text" name="date" defaultValue={formData.date} ref={dateRef} onChange={handleChange} />
         </InputGroup>
         <InputGroup>
           <InputLabel>항목</InputLabel>
-          <InputField type="text" name="item" ref={itemRef} />
+          <InputField type="text" name="item" defaultValue={formData.item} ref={itemRef} onChange={handleChange} />
         </InputGroup>
         <InputGroup>
           <InputLabel>금액</InputLabel>
-          <InputField type="text" name="amount" ref={amountRef} />
+          <InputField type="text" name="amount" defaultValue={formData.amount} ref={amountRef} onChange={handleChange} />
         </InputGroup>
         <InputGroup>
           <InputLabel>내용</InputLabel>
-          <InputField type="text" name="description" ref={descriptionRef} />
+          <InputField type="text" name="description" defaultValue={formData.description} ref={descriptionRef} onChange={handleChange} />
         </InputGroup>
         <button type="submit">수정</button>
         <button type="button" onClick={handleDelete}>삭제</button>
