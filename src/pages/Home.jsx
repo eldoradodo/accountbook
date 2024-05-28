@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
-// eslint-disable-next-line no-unused-vars
 import { v4 as uuidv4 } from 'uuid';
 import fakeData from '../fakeData.json';
 
@@ -50,7 +49,7 @@ const InputField = styled.input`
   border: 1px solid #ced4da;
 `;
 
-function Home() {
+const Home = () => {
   const [selectedMonth, setSelectedMonth] = useState(null);
   const [formData, setFormData] = useState({
     date: '',
@@ -58,6 +57,7 @@ function Home() {
     amount: '',
     description: ''
   });
+  const [expenses, setExpenses] = useState(fakeData); // fakeData로 초기화
 
   const months = ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'];
 
@@ -75,8 +75,29 @@ function Home() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // 여기에 폼 데이터를 다루는 로직을 추가할 수 있습니다.
-    console.log('폼 데이터:', formData);
+
+    if (!formData.date || !formData.amount || Number(formData.amount) <= 0) {
+      alert('날짜와 금액은 필수 입력값이며, 금액은 0보다 큰 값을 입력해야 합니다.');
+      return;
+    }
+
+    const id = uuidv4();
+
+    // 새로운 지출 내역 추가
+    const newExpense = {
+      id,
+      ...formData
+    };
+
+    setExpenses([...expenses, newExpense]);
+
+    // 입력폼 초기화
+    setFormData({
+      date: '',
+      item: '',
+      amount: '',
+      description: ''
+    });
   };
 
   return (
@@ -115,9 +136,8 @@ function Home() {
           <button type="submit">지출 등록</button>
         </form>
       </div>
-      {/* 임시 데이터 대신에 fakeData.json을 사용하는 예제입니다. */}
-      {fakeData.map((item, index) => (
-        <ListItem key={index}>
+      {expenses.map((item) => (
+        <ListItem key={item.id}>
           <Link to={`/detail/${item.id}`}>
             <p>날짜: {item.date}</p>
             <p>항목: {item.item}</p>

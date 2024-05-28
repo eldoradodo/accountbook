@@ -1,4 +1,4 @@
-// GlobalStyle.jsx
+// components/GlobalStyle.jsx
 
 import { createGlobalStyle } from 'styled-components';
 
